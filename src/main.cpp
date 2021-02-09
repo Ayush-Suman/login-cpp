@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sqlite3.h>
 
-#include "auth.h"
+#include "auth/auth.h"
 
 using namespace std;
 

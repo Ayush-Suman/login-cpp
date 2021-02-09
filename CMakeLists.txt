@@ -10,7 +10,9 @@ find_package(OpenSSL REQUIRED)
 
 include_directories(${SQLite3_INCLUDE_DIRS})
 
-add_executable(login src/main.cpp src/auth.cpp src/auth.h)
+set(Auth src/auth)
+
+add_executable(login src/main.cpp ${Auth}/auth.cpp ${Auth}/auth.h ${Auth}/auth_model.cpp ${Auth}/auth_model.h)
 
 target_link_libraries(login ${SQLite3_LIBRARIES})
 target_link_libraries(login OpenSSL::SSL)

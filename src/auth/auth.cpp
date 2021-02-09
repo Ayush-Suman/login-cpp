@@ -3,14 +3,9 @@
 #include <iostream>
 #include <string.h>
 #include <openssl/sha.h>
-
-#ifndef USER_TABLE
-#define USER_TABLE "UserCred.db"
-#endif
+#include "auth_model.h"
 
 using namespace std;
-
-sqlite3* db;
 
 int validate_password(const char* password, char* msg){
     int len=strlen(password);
@@ -45,28 +40,8 @@ int validate_password(const char* password, char* msg){
 
 }
 
-// Exposed Functions
-
-int initialise_auth(){
-    int r = sqlite3_open(USER_TABLE, &db);
-    if(r){
-        return 1;
-        }
-    const char* create_table = "CREATE TABLE IF NOT EXISTS USERCREDS ("
-        "ID INT PRIMARY KEY,"
-        "USERNAME TEXT NOT NULL,"
-        "KEY TEXT NOT NULL"
-    ")";
-
-    sqlite3_exec(db, create_table, NULL , 0, NULL);
-}
-
-void close_auth(){
-    sqlite3_close(db);
-}
 
 int register_user(const char* username, const char* password, char* msg){
-    //cout<<"Register User"<<endl;
     int r = validate_password(password, msg);
     if(r>0){
         return r;
@@ -76,15 +51,26 @@ int register_user(const char* username, const char* password, char* msg){
     string passw = password;
     string pre = usern + passw;
     SHA256((unsigned char*) pre.c_str(), pre.length(), hashed);
-    //cout<<hashed<<endl;
+    
     hashed[32]='\0';
-    //cout<<"Hashed"<<endl;
-    //string hashkey = b64decode(hashed);
-    //cout<<hashkey<<endl;
+
     
     unsigned long id = reinterpret_cast<uint64_t>(&pre);
-    char insert_user[500];
-    sprintf(insert_user, "INSERT INTO USERCREDS (ID, USERNAME, KEY) VALUES (%ld, %s, %s)", id, username, hashed);
-    sqlite3_exec(db, insert_user, NULL, 0, NULL);
+
+    insert_user(username, (const char*) hashed, to_string(id).c_str());
     return 0;
+}
+
+int verify_credentials(const char* username, const char* hashedkey, char* uid){
+
+}
+
+int signin_user(const char* username, const char* password, char* msg, char* uid){
+    unsigned char hashed[33];
+    string usern = username;
+    string passw = password;
+    string pre = usern + passw;
+    SHA256((unsigned char*) pre.c_str(), pre.length(), hashed);
+    hashed[32]='\0';
+    
 }
